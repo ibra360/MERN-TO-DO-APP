@@ -1,37 +1,37 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
+const auth = require('../../middleware/auth');
 
-const Item = require("../../models/item");
+// Item Model
+const Item = require('../../models/Item');
 
-// Get api/ itemc...Public...to get all items
-
-router.get("/", (req, res) => {
+// @route   GET api/items
+// @desc    Get All Items
+// @access  Public
+router.get('/', (req, res) => {
   Item.find()
     .sort({ date: -1 })
-    .then((items) => {
-      res.json(items);
-    })
-    .catch((err) => console.log(err));
+    .then(items => res.json(items));
 });
 
-// post api/ itemc...Public...to post a item
-
-router.post("/", (req, res) => {
+// @route   POST api/items
+// @desc    Create An Item
+// @access  Private
+router.post('/', auth, (req, res) => {
   const newItem = new Item({
-    name: req.body.name,
+    name: req.body.name
   });
-  newItem
-    .save()
-    .then((item) => res.json(item))
-    .catch((err) => console.log(err));
+
+  newItem.save().then(item => res.json(item));
 });
 
-// delete api/items/:id ...Public...to delete a item
-
-router.delete("/:id", (req, res) => {
+// @route   DELETE api/items/:id
+// @desc    Delete A Item
+// @access  Private
+router.delete('/:id', auth, (req, res) => {
   Item.findById(req.params.id)
-    .then((item) => item.remove().then(() => res.json({ sucess: true })))
-    .catch((err) => console.log(err));
+    .then(item => item.remove().then(() => res.json({ success: true })))
+    .catch(err => res.status(404).json({ success: false }));
 });
 
 module.exports = router;
